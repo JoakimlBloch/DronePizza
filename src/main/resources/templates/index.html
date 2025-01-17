@@ -7,21 +7,79 @@
 
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
         }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
         .delivery {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-bottom: 10px;
-            background-color: #f9f9f9;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
+        .delivery p {
+            margin: 10px 0;
+        }
+
         .buttons {
-            margin-top: 10px;
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
         }
+
         button {
-            padding: 5px 10px;
-            margin-right: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .button-container button {
+            background-color: #008CBA;
+        }
+
+        #delivery-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        #deliveries {
+            margin-top: 20px;
+        }
+
+        #add-drone, #simulate-delivery {
+            margin: 10px 5px;
         }
     </style>
 </head>
@@ -54,15 +112,15 @@
             const deliveryDiv = document.createElement("div");
             deliveryDiv.className = "delivery";
             deliveryDiv.innerHTML = `
-                    <p><strong>Adresse:</strong> ${delivery.adresse}</p>
-                    <p><strong>Pizza:</strong> ${delivery.pizza.titel}</p>
-                    <p><strong>Forventet levering:</strong> ${delivery.forventetLevering}</p>
-                    <p><strong>Drone:</strong> ${delivery.drone ? delivery.drone.serialUuid : "Ingen drone"}</p>
-                    <div class="buttons">
-                        ${!delivery.drone ? `<button onclick="assignDrone(${delivery.leveringId})">Tilknyt drone</button>` : ""}
-                        <button onclick="finishDelivery(${delivery.leveringId})">Afslut levering</button>
-                    </div>
-                `;
+                <p><strong>Adresse:</strong> ${delivery.adresse}</p>
+                <p><strong>Pizza:</strong> ${delivery.pizza.titel}</p>
+                <p><strong>Forventet levering:</strong> ${delivery.forventetLevering}</p>
+                <p><strong>Drone:</strong> ${delivery.drone ? delivery.drone.serialUuid : "Ingen drone"}</p>
+                <div class="buttons">
+                    ${!delivery.drone ? `<button onclick="assignDrone(${delivery.leveringId}, 1)">Tilknyt drone</button>` : ""}
+                    <button onclick="finishDelivery(${delivery.leveringId})">Afslut levering</button>
+                </div>
+            `;
             deliveryList.appendChild(deliveryDiv);
         });
     }

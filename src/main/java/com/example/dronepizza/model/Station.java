@@ -63,4 +63,12 @@ public class Station {
     public void setDrones(List<Drone> drones) {
         this.drones = drones;
     }
+
+    public String getNavn() {
+        return navn;
+    }
+
+    public void setNavn(String navn) {
+        this.navn = navn;
+    }
 }
