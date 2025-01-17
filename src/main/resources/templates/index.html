@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DronePizza</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .delivery {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+        .buttons {
+            margin-top: 10px;
+        }
+        button {
+            padding: 5px 10px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+
+<body>
+<h1>DronePizza Leveringer</h1>
+<button id="add-drone">Opret ny drone</button>
+<button id="simulate-delivery">Simulér ny levering</button>
+
+<div id="delivery-list">
+    <h2>Ikke-leverede leveringer</h2>
+    <div id="deliveries"></div>
+</div>
+
+<script>
+    const API_BASE = "http://localhost:8080";
+
+    // Funktion til at hente ikke-leverede leveringer
+    async function fetchDeliveries() {
+        const response = await fetch(`${API_BASE}/deliveries`);
+        const deliveries = await response.json();
+        renderDeliveries(deliveries);
+    }
+
+    // Render leveringer i DOM'en
+    function renderDeliveries(deliveries) {
+        const deliveryList = document.getElementById("deliveries");
+        deliveryList.innerHTML = ""; // Ryd listen før ny rendering
+        deliveries.forEach(delivery => {
+            const deliveryDiv = document.createElement("div");
+            deliveryDiv.className = "delivery";
+            deliveryDiv.innerHTML = `
+                    <p><strong>Adresse:</strong> ${delivery.adresse}</p>
+                    <p><strong>Pizza:</strong> ${delivery.pizza.titel}</p>
+                    <p><strong>Forventet levering:</strong> ${delivery.forventetLevering}</p>
+                    <p><strong>Drone:</strong> ${delivery.drone ? delivery.drone.serialUuid : "Ingen drone"}</p>
+                    <div class="buttons">
+                        ${!delivery.drone ? `<button onclick="assignDrone(${delivery.leveringId})">Tilknyt drone</button>` : ""}
+                        <button onclick="finishDelivery(${delivery.leveringId})">Afslut levering</button>
+                    </div>
+                `;
+            deliveryList.appendChild(deliveryDiv);
+        });
+    }
+
+    // Tilknyt en drone til en levering
+    async function assignDrone(leveringId, droneId) {
+        const response = await fetch(`${API_BASE}/deliveries/schedule?leveringId=${leveringId}&droneId=${droneId}`, {
+            method: "POST"
+        });
+        if (response.ok) {
+            fetchDeliveries();
+        }
+    }
+
+    // Afslut en levering
+    async function finishDelivery(leveringId) {
+        const response = await fetch(`${API_BASE}/deliveries/finish?leveringId=${leveringId}`, {
+            method: "POST"
+        });
+        if (response.ok) {
+            fetchDeliveries();
+        }
+    }
+
+    // Opret en ny drone
+    async function createDrone() {
+        const response = await fetch(`${API_BASE}/drones/add`, {
+            method: "POST"
+        });
+        if (response.ok) {
+            console.log("Drone oprettet!");
+        }
+    }
+
+    // Simuler en ny levering
+    async function simulateDelivery() {
+        const response = await fetch(`${API_BASE}/deliveries/add?pizzaId=1`, {
+            method: "POST"
+        });
+        if (response.ok) {
+            fetchDeliveries();
+        }
+    }
+
+    // Event listeners for knapper
+    document.getElementById("add-drone").addEventListener("click", createDrone);
+    document.getElementById("simulate-delivery").addEventListener("click", simulateDelivery);
+
+    // Opdater listen hvert 60. sekund
+    setInterval(fetchDeliveries, 60000);
+
+    // Første hentning af leveringer
+    fetchDeliveries();
+</script>
+</body>
+</html>
