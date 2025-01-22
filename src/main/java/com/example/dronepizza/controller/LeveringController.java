@@ -14,10 +14,13 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/deliveries")
 public class LeveringController {
+
+    private Random random = new Random();
 
     // Dependency injection
     private LeveringRepository leveringRepository;
@@ -66,23 +69,26 @@ public class LeveringController {
     }
 
     @PostMapping("/schedule")
-    public ResponseEntity<Levering> scheduleDelivery(@RequestParam Long leveringId, @RequestParam Long droneId) {
+    public ResponseEntity<Levering> scheduleDelivery(@RequestParam Long leveringId) {
         Optional<Levering> leveringToSchedule = leveringRepository.findById(leveringId);
+
+        // Tjekker om levering objekt er tom
         if (leveringToSchedule.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
+        // Tjekker om levering allerede har en drone
         Levering levering = leveringToSchedule.get();
         if (levering.getDrone() != null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        Optional<Drone> droneToAssign = droneRepository.findById(droneId);
-        if (droneToAssign.isEmpty() || droneToAssign.get().getDriftsStatus() != DroneStatus.I_DRIFT) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        // Finder en random AKTIV drone i systemet til at koble på levering
+        List<Drone> aktiveDroner = droneRepository.findByDriftsStatus(DroneStatus.I_DRIFT);
+        int antalAktiveDroner = random.nextInt(aktiveDroner.size());
+        Drone drone = aktiveDroner.get(antalAktiveDroner);
 
-        Drone drone = droneToAssign.get();
+        // Tilkobler drone og gemmer levering
         levering.setDrone(drone);
         leveringRepository.save(levering);
 

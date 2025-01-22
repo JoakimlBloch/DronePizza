@@ -117,7 +117,7 @@
                 <p><strong>Forventet levering:</strong> ${delivery.forventetLevering}</p>
                 <p><strong>Drone:</strong> ${delivery.drone ? delivery.drone.serialUuid : "Ingen drone"}</p>
                 <div class="buttons">
-                    ${!delivery.drone ? `<button onclick="assignDrone(${delivery.leveringId}, 1)">Tilknyt drone</button>` : ""}
+                    ${!delivery.drone ? `<button onclick="assignDrone(${delivery.leveringId})">Tilknyt drone</button>` : ""}
                     <button onclick="finishDelivery(${delivery.leveringId})">Afslut levering</button>
                 </div>
             `;
@@ -126,8 +126,8 @@
     }
 
     // Tilknyt en drone til en levering
-    async function assignDrone(leveringId, droneId) {
-        const response = await fetch(`${API_BASE}/deliveries/schedule?leveringId=${leveringId}&droneId=${droneId}`, {
+    async function assignDrone(leveringId) {
+        const response = await fetch(`${API_BASE}/deliveries/schedule?leveringId=${leveringId}`, {
             method: "POST"
         });
         if (response.ok) {
